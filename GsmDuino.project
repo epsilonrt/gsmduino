@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CodeLite_Project Name="GsmDuino" Version="10.0.0" InternalType="">
+  <VirtualDirectory Name="examples">
+    <VirtualDirectory Name="SmsServer">
+      <File Name="examples/SmsServer/SmsServer.ino"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="SmsPing">
+      <File Name="examples/SmsPing/SmsPing.ino"/>
+    </VirtualDirectory>
+  </VirtualDirectory>
   <Description/>
   <Dependencies/>
   <Settings Type="Executable">
@@ -66,4 +74,5 @@
     <File Name="src/gsmduino.h"/>
     <File Name="src/gsmduino.cpp"/>
   </VirtualDirectory>
+  <Dependencies Name="Debug"/>
 </CodeLite_Project>

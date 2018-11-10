@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CodeLite_Workspace Name="GsmDuino" Database="" Version="10.0.0">
-  <Project Name="SmsServer" Path="examples/SmsServer/SmsServer.project" Active="Yes"/>
-  <Project Name="GsmDuino" Path="GsmDuino.project"/>
+  <Project Name="GsmDuino" Path="GsmDuino.project" Active="No"/>
+  <Project Name="SmsPing" Path="extras/PiDuino/SmsPing/SmsPing.project" Active="Yes"/>
+  <Project Name="SmsServer" Path="extras/PiDuino/SmsServer/SmsServer.project" Active="No"/>
   <BuildMatrix>
     <WorkspaceConfiguration Name="Debug" Selected="yes">
       <Environment/>
-      <Project Name="SmsServer" ConfigName="Debug"/>
       <Project Name="GsmDuino" ConfigName="Debug"/>
+      <Project Name="SmsPing" ConfigName="Debug"/>
+      <Project Name="SmsServer" ConfigName="Debug"/>
     </WorkspaceConfiguration>
     <WorkspaceConfiguration Name="Release" Selected="yes">
       <Environment/>
-      <Project Name="SmsServer" ConfigName="Release"/>
       <Project Name="GsmDuino" ConfigName="Debug"/>
+      <Project Name="SmsPing" ConfigName="Release"/>
+      <Project Name="SmsServer" ConfigName="Release"/>
     </WorkspaceConfiguration>
   </BuildMatrix>
 </CodeLite_Workspace>

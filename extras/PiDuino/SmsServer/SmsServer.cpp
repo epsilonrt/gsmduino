@@ -1,21 +1,13 @@
-# GsmDuino
+// GsmDuino SMS Server
 
-## Abstract
+// Wait for SMS reception and display them. 
+// If the SMS text received contains PING in upper case, a PONGn response 
+// is sent to the sender.
 
-**GsmDuino** is a library for GSM/GPRS module. 
+// Created 10 November 2018
+// by Pascal JEAN https://github.com/epsilonrt
 
-It can be used on Arduino and Pi boards thanks to 
-[PiDuino](https://github.com/epsilonrt/piduino).
-
-
-Unlike other libraries, GsmDuino uses any software or hardware serial link as 
-long as it is derived from the `Stream` class.
-
-**GsmDuino** uses the AT commands defined in V.25TER, 3GPP TS 27.005
-
-Here is a simple example to display all received SMS:
-
-```c++
+// This example code is in the public domain.
 #ifdef __unix__
 #include <Piduino.h>  // All the magic is here ;-)
 #else
@@ -62,8 +54,3 @@ void loop () {
 
   gsm.poll (2000);
 }
-```
-
-This project is under development. For now, only SMS management is functional.
-
-------

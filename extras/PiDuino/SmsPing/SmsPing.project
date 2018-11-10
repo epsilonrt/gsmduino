@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<CodeLite_Project Name="SmsServer" Version="10.0.0" InternalType="Console">
+<CodeLite_Project Name="SmsPing" Version="10.0.0" InternalType="Console">
+  <Plugins>
+    <Plugin Name="qmake">
+      <![CDATA[00010001N0005Debug000000000000]]>
+    </Plugin>
+  </Plugins>
   <Description/>
   <Dependencies/>
   <VirtualDirectory Name="src">
-    <File Name="SmsServer.cpp"/>
-    <File Name="../../src/gsmduino.cpp"/>
-    <File Name="../../src/gsmduino.h"/>
+    <File Name="SmsPing.cpp"/>
+    <File Name="../../../src/gsmduino.cpp"/>
+    <File Name="../../../src/gsmduino.h"/>
   </VirtualDirectory>
   <Dependencies Name="Debug"/>
   <Dependencies Name="Release"/>

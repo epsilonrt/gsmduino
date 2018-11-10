@@ -1,4 +1,4 @@
-// GsmDuino SMS Server
+// GsmDuino SMS Server with Ping-Pong feature
 
 // Wait for SMS reception and display them. 
 // If the SMS text received contains PING in upper case, a PONGn response 
