@@ -18,7 +18,7 @@
     <GlobalSettings>
       <Compiler Options="-std=c++14;$(shell pkg-config --cflags piduino)" C_Options="-std=c99;$(shell pkg-config --cflags piduino)" Assembler="">
         <IncludePath Value="."/>
-        <IncludePath Value="../../src"/>
+        <IncludePath Value="../../../src"/>
       </Compiler>
       <Linker Options="$(shell pkg-config --libs piduino)">
         <LibraryPath Value="."/>

@@ -42,9 +42,6 @@ bool mySmsReceivedCB (unsigned int index, GsmDuino::Module * m) {
 void setup() {
 
   Console.begin (115200);
-  while (!Console) {
-    ; // wait for serial port to connect. Needed for native USB
-  }
   Serial1.begin (115200);
   gsm.smsSetReceivedCB (mySmsReceivedCB);
   gsm.begin (Serial1);
