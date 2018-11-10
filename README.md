@@ -16,13 +16,6 @@ long as it is derived from the `Stream` class.
 Here is a simple example to display all received SMS:
 
 ```c++
-#ifdef __unix__
-#include <Piduino.h>  // All the magic is here ;-)
-#else
-// Defines the serial port as the console on the Arduino platform
-#define Console Serial
-#endif
-
 #include "gsmduino.h"
 
 GsmDuino::Module  gsm;
@@ -35,11 +28,11 @@ bool mySmsReceivedCB (unsigned int index, GsmDuino::Module * m) {
 
   if (m->smsRead (sms, index)) {
 
-    Console.println (sms.date());
-    Console.print (F ("From: "));
-    Console.println (sms.destination());
-    Console.print (F ("Text: "));
-    Console.println (sms.text());
+    Serial.println (sms.date());
+    Serial.print (F ("From: "));
+    Serial.println (sms.destination());
+    Serial.print (F ("Text: "));
+    Serial.println (sms.text());
 
     m->smsDelete (index);
     return true;
@@ -49,8 +42,8 @@ bool mySmsReceivedCB (unsigned int index, GsmDuino::Module * m) {
 
 void setup() {
 
-  Console.begin (115200);
-  while (!Console) {
+  Serial.begin (115200);
+  while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB
   }
   Serial1.begin (115200);
