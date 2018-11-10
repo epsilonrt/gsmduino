@@ -1,0 +1,69 @@
+#######################################
+# Syntax Coloring Map For GsmDuino Library
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+GsmDuino	KEYWORD1
+Sms	KEYWORD1
+Module	KEYWORD1
+Response	KEYWORD1
+Status	KEYWORD1
+Status	KEYWORD1
+smsReceivedCB	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+begin	KEYWORD2
+parse	KEYWORD2
+setText	KEYWORD2
+setDestination	KEYWORD2
+clear	KEYWORD2
+text	KEYWORD2
+destination	KEYWORD2
+date	KEYWORD2
+name	KEYWORD2
+status	KEYWORD2
+index	KEYWORD2
+close	KEYWORD2
+isOpen	KEYWORD2
+poll	KEYWORD2
+smsSend	KEYWORD2
+smsRead	KEYWORD2
+smsDelete	KEYWORD2
+smsAvailable	KEYWORD2
+smsDeleteAll	KEYWORD2
+smsLastIndex	KEYWORD2
+smsSetReceivedCB	KEYWORD2
+responseMessage	KEYWORD2
+response	KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+Ok	LITERAL1
+Error	LITERAL1
+NotReady	LITERAL1
+Ready	LITERAL1
+ConnectOk	LITERAL1
+ConnectFail	LITERAL1
+AlreadyConnect	LITERAL1
+SendOk	LITERAL1
+SendFail	LITERAL1
+DataAccept	LITERAL1
+Closed	LITERAL1
+ReadyToReceive	LITERAL1
+Timeout	LITERAL1
+Unknown	LITERAL1
+RecUnread = 0	LITERAL1
+RecRead	LITERAL1
+StoUnsent	LITERAL1
+StoSent	LITERAL1
+All	LITERAL1
+
