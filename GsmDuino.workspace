@@ -3,18 +3,27 @@
   <Project Name="GsmDuino" Path="GsmDuino.project" Active="No"/>
   <Project Name="SmsPing" Path="extras/PiDuino/SmsPing/SmsPing.project" Active="Yes"/>
   <Project Name="SmsServer" Path="extras/PiDuino/SmsServer/SmsServer.project" Active="No"/>
+  <Project Name="GsmPin" Path="extras/PiDuino/GsmPin/GsmPin.project" Active="No"/>
+  <Project Name="GsmSignal" Path="extras/PiDuino/GsmSignal/GsmSignal.project" Active="No"/>
+  <Project Name="GsmRegistration" Path="extras/PiDuino/GsmRegistration/GsmRegistration.project" Active="No"/>
   <BuildMatrix>
     <WorkspaceConfiguration Name="Debug" Selected="yes">
       <Environment/>
       <Project Name="GsmDuino" ConfigName="Debug"/>
       <Project Name="SmsPing" ConfigName="Debug"/>
       <Project Name="SmsServer" ConfigName="Debug"/>
+      <Project Name="GsmPin" ConfigName="Debug"/>
+      <Project Name="GsmSignal" ConfigName="Debug"/>
+      <Project Name="GsmRegistration" ConfigName="Debug"/>
     </WorkspaceConfiguration>
     <WorkspaceConfiguration Name="Release" Selected="yes">
       <Environment/>
       <Project Name="GsmDuino" ConfigName="Debug"/>
       <Project Name="SmsPing" ConfigName="Release"/>
       <Project Name="SmsServer" ConfigName="Release"/>
+      <Project Name="GsmPin" ConfigName="Release"/>
+      <Project Name="GsmSignal" ConfigName="Release"/>
+      <Project Name="GsmRegistration" ConfigName="Release"/>
     </WorkspaceConfiguration>
   </BuildMatrix>
 </CodeLite_Workspace>

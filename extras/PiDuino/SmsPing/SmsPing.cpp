@@ -1,7 +1,7 @@
 // GsmDuino SMS Server with Ping-Pong feature
 
-// Wait for SMS reception and display them. 
-// If the SMS text received contains PING in upper case, a PONGn response 
+// Wait for SMS reception and display them.
+// If the SMS text received contains PING in upper case, a PONGn response
 // is sent to the sender.
 
 // Created 10 November 2018
@@ -16,16 +16,17 @@
 #endif
 
 #include "gsmduino.h"
+using namespace GsmDuino;
 
-GsmDuino::Module  gsm;
+Module  gsm;
 HardwareSerial & gsmSerial = Serial1;
 unsigned int pongCounter = 1;
 
 // SMS received callback
 // this function is called by the polling loop when a new SMS arrives,
 // the m pointer can be used to access the module.
-bool mySmsReceivedCB (unsigned int index, GsmDuino::Module * m) {
-  GsmDuino::Sms sms;
+bool mySmsReceivedCB (unsigned int index, Module * m) {
+  Sms sms;
 
   if (m->smsRead (sms, index)) {
     const String & text = sms.text();
@@ -38,7 +39,7 @@ bool mySmsReceivedCB (unsigned int index, GsmDuino::Module * m) {
     Console.println (text);
 
     if (text.indexOf ("PING") >= 0) {
-      GsmDuino::Sms pong;
+      Sms pong;
       String str ("PONG");
 
       str += pongCounter;
@@ -73,19 +74,38 @@ bool mySmsReceivedCB (unsigned int index, GsmDuino::Module * m) {
 void setup() {
 
   Console.begin (115200);
-  Console.println (F ("GsmDuino SMS Server"));
+  Console.setTimeout (-1);
+  Console.println (F ("GsmDuino SMS Ping Server"));
   Console.println (F ("Waiting to initialize the module, may take a little while..."));
 
   gsmSerial.begin (115200);
   gsm.smsSetReceivedCB (mySmsReceivedCB);
 
-  if (! gsm.begin (gsmSerial)) {
+  PinStatus ps = gsm.begin (gsmSerial);
+  if (ps == WaitingPin) {
+    String pin;
+
+    Console.print (F ("Pin ? "));
+    Console.flush();
+    pin = Console.readStringUntil ('\n');
+    ps = gsm.begin (gsmSerial, pin);
+  }
+
+  if (ps != PinReady) {
+
     Console.println (F ("Error: Unable to start the GSM module, check its connection and startup !"));
+    exit (EXIT_FAILURE);
+  }
+
+  if (!gsm.waitRegistration (5000)) {
+
+    Console.println (F ("Error: Network registration failed !"));
     exit (EXIT_FAILURE);
   }
   gsm.smsDeleteAll();
 
   Console.println (F ("GSM module started successfully !\r\n"));
+
 #ifdef __unix__
   Console.println (F ("Press Ctrl+C to abort ..."));
 #endif

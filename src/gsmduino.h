@@ -42,7 +42,34 @@ namespace GsmDuino {
     ReadyToReceive,
     //
     Timeout,
-    Unknown = -1
+    UnknownResponse = -1
+  };
+
+  enum NetworkRegistration {
+    NotRegistered = 0,
+    RegisteredHome = 1,
+    RegistrationInProgress = 2,
+    RegistrationDenied = 3,
+    UnknownRegistration = 4,
+    RegisteredRoaming = 5
+  };
+
+  enum PinStatus {
+    PinReady = 0,
+    WaitingPin,
+    WaitingPuk,
+    WaitingPhonePin,
+    WaitingPhonePuk,
+    WaitingPin2,
+    WaitingPuk2,
+    UnknownPinStatus = -1
+  };
+
+  enum Functionality {
+    FuncMinimal = 0,
+    FuncFull = 1,
+    FuncDisableHF = 4,
+    UnknownFunctionality = -1
   };
 
   class Sms {
@@ -71,7 +98,7 @@ namespace GsmDuino {
       inline const String & name() const;
       inline Status status() const;
       inline unsigned int index() const;
-      
+
     protected:
       unsigned int _index;
       String _text;
@@ -79,6 +106,11 @@ namespace GsmDuino {
       String _name;
       String _date;
       Status _status;
+  };
+
+  struct SignalQuality {
+    int rssi; // Received Signal Strength Indication dBm
+    uint8_t ber; // bit error rate %
   };
 
   class Module {
@@ -89,11 +121,11 @@ namespace GsmDuino {
 
       typedef bool (*smsReceivedCB) (unsigned int smsIndex, Module * m);
 
-      bool begin (Stream & serialPort);
+      PinStatus begin (Stream & serialPort, const String & pin = String());
       void close();
       inline bool isOpen() const;
-
       bool poll (unsigned long timeoutMs = 0);
+      
       bool smsSend (Sms & sms);
       bool smsRead (Sms & sms, unsigned int index = 0);
       bool smsDelete (unsigned int index);
@@ -105,6 +137,27 @@ namespace GsmDuino {
       const char * responseMessage() const;
       inline Response response() const;
 
+      NetworkRegistration networkRegistration();
+      bool waitRegistration (unsigned long timeOut = -1);
+
+      bool signalQuality (SignalQuality & quality);
+
+      Functionality functionality();
+      bool setFunctionality (Functionality f, bool resetBefore = false);
+      bool reset();
+
+      bool pinIsEnabled ();
+      PinStatus pinStatus();
+      bool pinSetEnabled (bool enabled, const String & pin);
+      bool pinEnter (const String & pin);
+      bool pinChange (const String & oldpin, const String & newpin);
+
+      bool stringParameter (const String & atCmd, String & str, unsigned long timeOut = 1000);
+      bool subscriberNumber (String & number);
+      bool imei (String & imei);
+      bool manufacturer (String & manufacturer);
+      bool model (String & model);
+
     protected:
       Stream * _serial;
       Response _resp;
@@ -113,6 +166,7 @@ namespace GsmDuino {
       smsReceivedCB _smsReceivedCB;
 
       Response _waitResponse (unsigned long timeoutMs);
+      Response _getResponse (const char * str);
       bool _readData (String & data, unsigned long timeoutMs = 100000);
       int _smsGetLastIndex();
   };
@@ -129,7 +183,7 @@ namespace GsmDuino {
   inline const String & Sms::date() const {
     return _date;
   }
-  
+
   inline const String & Sms::name() const {
     return _name;
   }
@@ -137,7 +191,7 @@ namespace GsmDuino {
   inline Sms::Status Sms::status() const {
     return _status;
   }
-  
+
   inline unsigned int Sms::index() const {
     return _index;
   }

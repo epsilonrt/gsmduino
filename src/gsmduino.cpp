@@ -78,6 +78,25 @@ namespace GsmDuino {
   };
   const int statusListSize = sizeof (statusList) / sizeof (const char *);
 
+  const char pin_0[] PROGMEM = "READY";
+  const char pin_1[] PROGMEM = "SIM PIN";
+  const char pin_2[] PROGMEM = "SIM PUK";
+  const char pin_3[] PROGMEM = "PH_SIM PIN";
+  const char pin_4[] PROGMEM = "PH_SIM PUK";
+  const char pin_5[] PROGMEM = "SIM PIN2";
+  const char pin_6[] PROGMEM = "SIM PUK2";
+
+  const char* const statusPinList[] PROGMEM = {
+    pin_0,
+    pin_1,
+    pin_2,
+    pin_3,
+    pin_4,
+    pin_5,
+    pin_6
+  };
+  const int statusPinListSize = sizeof (statusPinList) / sizeof (const char *);
+
   // ---------------------------------------------------------------------------
   int findStrInList (const char * what, const char * const list[], const int size) {
 
@@ -226,8 +245,9 @@ namespace GsmDuino {
   }
 
   // ---------------------------------------------------------------------------
-  bool
-  Module::begin (Stream & serialPort) {
+  PinStatus
+  Module::begin (Stream & serialPort, const String & pin) {
+    PinStatus status = UnknownPinStatus;
 
     if (!isOpen()) {
 
@@ -237,26 +257,51 @@ namespace GsmDuino {
 
       if (_resp == Ok) {
 
-        _serial->println (F ("AT+CSCS=\"GSM\""));
-        _resp = _waitResponse (10000);
+        status = pinStatus();
+        if ( (status == PinReady) || (status == WaitingPin)) {
 
-        if (_resp == Ok) {
+          if (status == WaitingPin) {
 
-          // delay (100);
-          int index =  _smsGetLastIndex();
-          if (index >= 0) {
+            if (pin.empty()) {
 
-            _smsCurrentIndex = _smsPreviousIndex = index;
+              _resp = Error;
+            }
+            else {
+
+              if (!pinEnter (pin)) {
+
+                _resp = Error;
+              }
+            }
+          }
+
+          if (_resp == Ok) {
+
+            _serial->println (F ("AT+CSCS=\"GSM\""));
+            _resp = _waitResponse (10000);
+
+            if (_resp == Ok) {
+
+              int index =  _smsGetLastIndex();
+              if (index >= 0) {
+
+                _smsCurrentIndex = _smsPreviousIndex = index;
+              }
+            }
           }
         }
       }
-      
+      else {
+
+        _resp = Error;
+      }
+
       if (_resp != Ok) {
-        
+
         close();
       }
     }
-    return isOpen();
+    return status;
   }
 
   // ---------------------------------------------------------------------------
@@ -400,6 +445,248 @@ namespace GsmDuino {
   }
 
   // ---------------------------------------------------------------------------
+  GsmDuino::NetworkRegistration Module::networkRegistration() {
+    NetworkRegistration reg = UnknownRegistration;
+    String buffer;
+
+    if (stringParameter ("AT+CREG?", buffer)) {
+      const int stx = buffer.indexOf (',') + 1;
+      String str = buffer.substring (stx, stx + 1);
+
+      reg = static_cast<NetworkRegistration> (str.toInt());
+    }
+    return reg;
+  }
+
+  // ---------------------------------------------------------------------------
+  bool Module::waitRegistration (unsigned long timeOut) {
+
+    if (isOpen()) {
+      PinStatus status;
+      unsigned long tmax = ( (long) timeOut != -1) ? millis() + timeOut : timeOut;
+
+      status = pinStatus() ;
+      if (status == PinReady) {
+        NetworkRegistration nr;
+
+        nr = networkRegistration();
+
+        while ( (nr != RegisteredHome) && (nr != RegisteredRoaming) &&
+                (millis() < tmax)) {
+
+          nr = networkRegistration();
+        }
+        return (nr == RegisteredHome) || (nr == RegisteredRoaming);
+      }
+    }
+    return false;
+  }
+
+  // ---------------------------------------------------------------------------
+  bool Module::signalQuality (GsmDuino::SignalQuality & quality) {
+    String buffer;
+
+    if (stringParameter ("AT+CSQ", buffer)) {
+      int etx = buffer.indexOf (',');
+      String str = buffer.substring (6, etx);
+
+      quality.rssi = -113 + (str.toInt() * 2);
+      str = buffer.substring (etx + 1);
+      quality.ber = str.toInt();
+      return true;
+    }
+    return false;
+  }
+
+  // ---------------------------------------------------------------------------
+  GsmDuino::Functionality Module::functionality() {
+    Functionality f = UnknownFunctionality;
+    String buffer;
+
+    if (stringParameter ("AT+CFUN?", buffer)) {
+      String str = buffer.substring (7);
+      int i = str.toInt();
+
+      if (i >= 0) {
+        f = static_cast<Functionality> (i);
+      }
+    }
+    return f;
+  }
+
+  // ---------------------------------------------------------------------------
+  bool Module::setFunctionality (Functionality f, bool resetBefore) {
+
+    if (isOpen()) {
+
+      _serial->print (F ("AT+CFUN="));
+      _serial->print (static_cast<int> (f));
+      if (resetBefore) {
+
+        _serial->print (",1");
+      }
+      _serial->println();
+      _resp = _waitResponse (10000);
+      return _resp == Ok;
+    }
+    return false;
+  }
+
+  // ---------------------------------------------------------------------------
+  bool Module::reset() {
+    Functionality f = functionality();
+    if (f != UnknownFunctionality) {
+      if (setFunctionality (f, true)) {
+
+        do {
+          _serial->println (F ("AT"));
+          _resp = _waitResponse (1000);
+        }
+        while (_resp != Ok);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // ---------------------------------------------------------------------------
+  GsmDuino::PinStatus Module::pinStatus() {
+    PinStatus pinstatus = UnknownPinStatus;
+    String buffer;
+
+    if (stringParameter ("AT+CPIN?", buffer, 5000)) {
+      String str = buffer.substring (7);
+      int i = findStrInList (str.c_str(), statusPinList, statusPinListSize);
+
+      if (i >= 0) {
+        pinstatus = static_cast<PinStatus> (i);
+      }
+    }
+    return pinstatus;
+  }
+
+  // ---------------------------------------------------------------------------
+  bool Module::pinIsEnabled () {
+    String buffer;
+
+    if (stringParameter ("AT+CLCK=\"SC\",2", buffer, 15000)) {
+
+      String str = buffer.substring (7);
+      return str.toInt() != 0;
+    }
+    return false;
+  }
+
+  // ---------------------------------------------------------------------------
+  bool Module::pinSetEnabled (bool enabled, const String & pin) {
+
+    if (isOpen()) {
+
+      _serial->print (F ("AT+CLCK=\"SC\","));
+      _serial->write (enabled ? '1' : '0');
+      _serial->print (F (",\""));
+      _serial->print (pin);
+      _serial->println (F ("\""));
+      _resp = _waitResponse (15000);
+      return _resp == Ok;
+    }
+    return false;
+  }
+
+  // ---------------------------------------------------------------------------
+  bool Module::pinEnter (const String & pin) {
+
+    if (isOpen()) {
+
+      _serial->print (F ("AT+CPIN=\""));
+      _serial->print (pin);
+      _serial->println (F ("\""));
+      _resp = _waitResponse (5000);
+      return _resp == Ok;
+    }
+    return false;
+  }
+
+  // ---------------------------------------------------------------------------
+  bool Module::pinChange (const String & oldpin, const String & newpin) {
+
+    if (isOpen()) {
+
+      if (pinIsEnabled()) {
+        _serial->print (F ("AT+CPWD=\"SC\",\""));
+        _serial->print (oldpin);
+        _serial->print (F ("\",\""));
+        _serial->print (newpin);
+        _serial->println (F ("\""));
+        _resp = _waitResponse (15000);
+        return _resp == Ok;
+      }
+    }
+    return false;
+  }
+
+  // ---------------------------------------------------------------------------
+  bool Module::subscriberNumber (String & n) {
+    String buffer;
+
+    if (stringParameter ("AT+CNUM", buffer)) {
+      const int stx = buffer.indexOf (",\"") + 2;
+      const int etx = buffer.indexOf ("\"", stx);
+
+      n = buffer.substring (stx, etx);
+      return true;
+    }
+    return false;
+  }
+
+  // ---------------------------------------------------------------------------
+  bool Module::stringParameter (const String & atCmd, String & str,
+                                unsigned long timeOut) {
+
+    if (isOpen()) {
+      String buffer;
+
+      _serial->println (atCmd);
+      if (_readData (buffer, timeOut)) {
+
+        _resp = _getResponse (buffer.c_str());
+        if (_resp == Ok) {
+          const int sol = buffer.indexOf ("\r\n") + 2;
+
+          if (sol >= 0) {
+            const int etx = buffer.indexOf ('\r', sol);
+
+            str = buffer.substring (sol, etx);
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  // ---------------------------------------------------------------------------
+  // AT+CIMI Request international mobile subscriber identity
+  bool Module::imei (String & i) {
+
+    return stringParameter ("AT+CIMI", i, 20000);
+  }
+
+  // ---------------------------------------------------------------------------
+  // AT+CGMI Request manufacturer identification
+  bool Module::manufacturer (String & m) {
+
+    return stringParameter ("AT+CGMI", m);
+  }
+
+  // ---------------------------------------------------------------------------
+  // AT+CGMM Request Model Identification
+  bool Module::model (String & m) {
+
+    return stringParameter ("AT+CGMM", m);
+  }
+
+  // ---------------------------------------------------------------------------
   const char *
   Module::responseMessage() const {
 
@@ -413,19 +700,26 @@ namespace GsmDuino {
   // ---------------------------------------------------------------------------
 
   // ---------------------------------------------------------------------------
+  GsmDuino::Response Module::_getResponse (const char * str) {
+    int i = findStrInList (str, respList, respListSize);
+
+    if (i >= 0) {
+
+      return static_cast<Response> (i);
+    }
+
+    return UnknownResponse;
+  }
+
+  // ---------------------------------------------------------------------------
   GsmDuino::Response Module::_waitResponse (unsigned long timeoutMs) {
     unsigned long tmax = millis() + timeoutMs;
 
     while (millis() < tmax) {
 
       if (_serial->available() > 0) {
-        String buffer = _serial->readString();
 
-        int i = findStrInList (buffer.c_str(), respList, respListSize);
-        if (i >= 0) {
-
-          return static_cast<Response> (i);
-        }
+        return _getResponse (_serial->readString().c_str());
       }
     }
 

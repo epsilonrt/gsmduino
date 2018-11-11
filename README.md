@@ -11,7 +11,7 @@ It can be used on Arduino and Pi boards thanks to
 Unlike other libraries, GsmDuino uses any software or hardware serial link as 
 long as it is derived from the `Stream` class.
 
-**GsmDuino** uses the AT commands defined in V.25TER, 3GPP TS 27.005
+**GsmDuino** uses the AT commands defined in V.25TER, 3GPP TS 27.005 & 27.007
 
 Here is a simple example to display all received SMS:
 

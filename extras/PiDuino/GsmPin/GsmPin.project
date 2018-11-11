@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<CodeLite_Project Name="SmsPing" Version="10.0.0" InternalType="Console">
+<CodeLite_Project Name="GsmPin" Version="10.0.0" InternalType="Console">
   <Plugins>
     <Plugin Name="qmake">
       <![CDATA[00010001N0005Debug000000000000]]>
@@ -8,7 +8,7 @@
   <Description/>
   <Dependencies/>
   <VirtualDirectory Name="src">
-    <File Name="SmsPing.cpp"/>
+    <File Name="GsmPin.cpp"/>
     <File Name="../../../src/gsmduino.cpp"/>
     <File Name="../../../src/gsmduino.h"/>
   </VirtualDirectory>
