@@ -253,7 +253,7 @@ namespace GsmDuino {
 
       _serial = &serialPort;
       _serial->println (F ("AT"));
-      _resp = _waitResponse (1000);
+      _resp = _waitResponse (10000);
 
       if (_resp == Ok) {
 
